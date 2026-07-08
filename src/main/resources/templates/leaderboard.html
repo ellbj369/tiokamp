@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>10 Kamp — Leaderboard</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<header class="top-bar">
+    <span class="top-bar-title">Björck-linds 10 Kamp 🏅</span>
+    <nav class="top-bar-nav">
+        <a th:href="@{/scores}">Mina Poäng</a>
+        <a th:href="@{/logout}" class="logout-link">Logga ut</a>
+    </nav>
+</header>
+
+<main class="page">
+
+    <!-- ── Latest score banner ─────────────────────────── -->
+    <div id="latestBanner" class="latest-banner" th:if="${latest != null}">
+        <div class="latest-inner">
+            <img th:if="${latest.profilePicture != null}"
+                 th:src="@{/uploads/__${latest.profilePicture}__}"
+                 class="latest-avatar" alt="Profile">
+            <div class="latest-avatar latest-avatar-fallback" th:if="${latest.profilePicture == null}">?</div>
+            <div class="latest-info">
+                <div class="latest-name" th:text="${latest.username}"></div>
+                <div class="latest-detail">
+                    fick precis <strong th:text="${latest.eventValue}"></strong>
+                    i <span th:text="${latest.eventName}"></span>
+                </div>
+                <div class="latest-total">Total: <strong th:text="${latest.totalScore}"></strong></div>
+                <div class="latest-time" th:text="${latest.updatedAt}"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="latest-empty" th:if="${latest == null}">
+        <p>Inga poäng än! 🏃</p>
+    </div>
+
+    <!-- ── Top 3 per event ─────────────────────────────── -->
+    <h2 class="section-title">Topp 3 Per Event</h2>
+
+    <div class="leaderboard-categories">
+        <div class="lb-category" th:each="cat : ${categories}">
+            <h3 class="lb-cat-title" th:text="${cat.eventName}"></h3>
+
+            <div th:if="${cat.top3.isEmpty()}" class="lb-empty">Inga tävlandes än.</div>
+
+            <div class="lb-entries" th:if="${!cat.top3.isEmpty()}">
+                <div class="lb-entry" th:each="entry : ${cat.top3}"
+                     th:classappend="${entry.rank == 1} ? 'lb-entry--gold' : (${entry.rank == 2} ? 'lb-entry--silver' : 'lb-entry--bronze')">
+                    <span class="lb-rank" th:text="${entry.rank == 1} ? '🥇' : (${entry.rank == 2} ? '🥈' : '🥉')"></span>
+                    <img th:if="${entry.profilePicture != null}"
+                         th:src="@{/uploads/__${entry.profilePicture}__}"
+                         class="lb-avatar" alt="avatar">
+                    <div class="lb-avatar lb-avatar-fallback" th:if="${entry.profilePicture == null}"
+                         th:text="${entry.username.substring(0,1).toUpperCase()}"></div>
+                    <span class="lb-name" th:text="${entry.username}"></span>
+                    <span class="lb-value" th:text="${entry.value}"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<script th:src="@{/js/leaderboard.js}"></script>
+</body>
+</html>

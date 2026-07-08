@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>10 Kamp — Skapa ett konto</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="auth-body">
+<div class="auth-card">
+    <div class="logo">🏅</div>
+    <h1 class="auth-title">Skapa ett konto</h1>
+    <p class="auth-subtitle">Krossa dina motståndare</p>
+
+    <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+    <form th:action="@{/register}" method="post" enctype="multipart/form-data" class="auth-form">
+
+        <!-- Profile picture picker -->
+        <div class="avatar-picker">
+            <div class="avatar-preview" id="avatarPreview">
+                <span class="avatar-placeholder">📷</span>
+            </div>
+            <label class="avatar-label" for="profilePicture">Ta en bild!!</label>
+            <input type="file" id="profilePicture" name="profilePicture"
+                   accept="image/*" capture="user" required
+                   onchange="previewAvatar(event)">
+        </div>
+
+        <div class="field">
+            <label for="username">Användarnamn</label>
+            <input type="text" id="username" name="username" autocomplete="username"
+                   placeholder="Pick a username" required>
+        </div>
+        <div class="field">
+            <label for="password">Lösenord</label>
+            <input type="password" id="password" name="password" autocomplete="new-password"
+                   placeholder="Choose a password" required>
+        </div>
+
+        <button type="submit" class="btn-primary">Skapa ett konto</button>
+    </form>
+
+    <p class="auth-switch">Har du redan ett konto? <a th:href="@{/login}">Logga in</a></p>
+</div>
+
+<script>
+    function previewAvatar(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = e => {
+            const preview = document.getElementById('avatarPreview');
+            preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+        };
+        reader.readAsDataURL(file);
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>10 Kamp — Mina Poäng</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<header class="top-bar">
+    <span class="top-bar-title">Björck-linds 10 Kamp 🏅</span>
+    <nav class="top-bar-nav">
+        <a th:href="@{/leaderboard}">Leaderboard</a>
+        <a th:href="@{/logout}" class="logout-link">Logga ut</a>
+    </nav>
+</header>
+
+<main class="page">
+    <h2 class="page-title">Dina Poäng</h2>
+    <p class="page-sub" th:text="'Tävlar som ' + ${username}"></p>
+
+    <div id="saveToast" class="toast" aria-live="polite"></div>
+
+    <div class="cards">
+
+        <!-- Each card: title, current value, input, save button -->
+        <div th:each="event : ${ {
+                {num: 1,  name: '100m Sprint',  unit: 'sek',  icon: '🏃'},
+                {num: 2,  name: 'Long Jump',    unit: 'm',    icon: '🦘'},
+                {num: 3,  name: 'Shot Put',     unit: 'm',    icon: '🔵'},
+                {num: 4,  name: 'High Jump',    unit: 'm',    icon: '🏔️'},
+                {num: 5,  name: '400m',         unit: 'sek',  icon: '⏱️'},
+                {num: 6,  name: '110m Hurdles', unit: 'sek',  icon: '🚧'},
+                {num: 7,  name: 'Discus',       unit: 'm',    icon: '🥏'},
+                {num: 8,  name: 'Pole Vault',   unit: 'm',    icon: '🎿'},
+                {num: 9,  name: 'Javelin',      unit: 'm',    icon: '🎯'},
+                {num: 10, name: '1500m',        unit: 'sek',  icon: '🏅'}
+            } }"
+             th:remove="tag">
+            <!-- Thymeleaf inline iteration doesn't support complex maps; use a flat approach below -->
+        </div>
+
+        <!-- Event cards rendered directly for clarity and mobile reliability -->
+        <div class="event-card" id="card-1">
+            <div class="card-header"><span class="card-icon">🏃</span><span class="card-name">100m Sprint</span><span class="card-unit">sek</span></div>
+            <div class="card-current" id="current-1" th:text="${scores.event1 != null ? scores.event1 : '—'}"></div>
+            <div class="card-input-row">
+                <input type="number" step="0.01" min="0" placeholder="Enter time" id="input-1" class="card-input">
+                <button class="btn-save" onclick="saveScore(1)">Spara</button>
+            </div>
+            <div class="card-feedback" id="feedback-1"></div>
+        </div>
+
+        <div class="event-card" id="card-2">
+            <div class="card-header"><span class="card-icon">🦘</span><span class="card-name">Long Jump</span><span class="card-unit">m</span></div>
+            <div class="card-current" id="current-2" th:text="${scores.event2 != null ? scores.event2 : '—'}"></div>
+            <div class="card-input-row">
+                <input type="number" step="0.01" min="0" placeholder="Enter distance" id="input-2" class="card-input">
+                <button class="btn-save" onclick="saveScore(2)">Spara</button>
+            </div>
+            <div class="card-feedback" id="feedback-2"></div>
+        </div>
+
+        <div class="event-card" id="card-3">
+            <div class="card-header"><span class="card-icon">🔵</span><span class="card-name">Shot Put</span><span class="card-unit">m</span></div>
+            <div class="card-current" id="current-3" th:text="${scores.event3 != null ? scores.event3 : '—'}"></div>
+            <div class="card-input-row">
+                <input type="number" step="0.01" min="0" placeholder="Enter distance" id="input-3" class="card-input">
+                <button class="btn-save" onclick="saveScore(3)">Spara</button>
+            </div>
+            <div class="card-feedback" id="feedback-3"></div>
+        </div>
+
+        <div class="event-card" id="card-4">
+            <div class="card-header"><span class="card-icon">🏔️</span><span class="card-name">High Jump</span><span class="card-unit">m</span></div>
+            <div class="card-current" id="current-4" th:text="${scores.event4 != null ? scores.event4 : '—'}"></div>
+            <div class="card-input-row">
+                <input type="number" step="0.01" min="0" placeholder="Enter height" id="input-4" class="card-input">
+                <button class="btn-save" onclick="saveScore(4)">Spara</button>
+            </div>
+            <div class="card-feedback" id="feedback-4"></div>
+        </div>
+
+        <div class="event-card" id="card-5">
+            <div class="card-header"><span class="card-icon">⏱️</span><span class="card-name">400m</span><span class="card-unit">sek</span></div>
+            <div class="card-current" id="current-5" th:text="${scores.event5 != null ? scores.event5 : '—'}"></div>
+            <div class="card-input-row">
+                <input type="number" step="0.01" min="0" placeholder="Enter time" id="input-5" class="card-input">
+                <button class="btn-save" onclick="saveScore(5)">Spara</button>
+            </div>
+            <div class="card-feedback" id="feedback-5"></div>
+        </div>
+
+        <div class="event-card" id="card-6">
+            <div class="card-header"><span class="card-icon">🚧</span><span class="card-name">110m Hurdles</span><span class="card-unit">sek</span></div>
+            <div class="card-current" id="current-6" th:text="${scores.event6 != null ? scores.event6 : '—'}"></div>
+            <div class="card-input-row">
+                <input type="number" step="0.01" min="0" placeholder="Enter time" id="input-6" class="card-input">
+                <button class="btn-save" onclick="saveScore(6)">Spara</button>
+            </div>
+            <div class="card-feedback" id="feedback-6"></div>
+        </div>
+
+        <div class="event-card" id="card-7">
+            <div class="card-header"><span class="card-icon">🥏</span><span class="card-name">Discus</span><span class="card-unit">m</span></div>
+            <div class="card-current" id="current-7" th:text="${scores.event7 != null ? scores.event7 : '—'}"></div>
+            <div class="card-input-row">
+                <input type="number" step="0.01" min="0" placeholder="Enter distance" id="input-7" class="card-input">
+                <button class="btn-save" onclick="saveScore(7)">Spara</button>
+            </div>
+            <div class="card-feedback" id="feedback-7"></div>
+        </div>
+
+        <div class="event-card" id="card-8">
+            <div class="card-header"><span class="card-icon">🎿</span><span class="card-name">Pole Vault</span><span class="card-unit">m</span></div>
+            <div class="card-current" id="current-8" th:text="${scores.event8 != null ? scores.event8 : '—'}"></div>
+            <div class="card-input-row">
+                <input type="number" step="0.01" min="0" placeholder="Enter height" id="input-8" class="card-input">
+                <button class="btn-save" onclick="saveScore(8)">Spara</button>
+            </div>
+            <div class="card-feedback" id="feedback-8"></div>
+        </div>
+
+        <div class="event-card" id="card-9">
+            <div class="card-header"><span class="card-icon">🎯</span><span class="card-name">Javelin</span><span class="card-unit">m</span></div>
+            <div class="card-current" id="current-9" th:text="${scores.event9 != null ? scores.event9 : '—'}"></div>
+            <div class="card-input-row">
+                <input type="number" step="0.01" min="0" placeholder="Enter distance" id="input-9" class="card-input">
+                <button class="btn-save" onclick="saveScore(9)">Spara</button>
+            </div>
+            <div class="card-feedback" id="feedback-9"></div>
+        </div>
+
+        <div class="event-card" id="card-10">
+            <div class="card-header"><span class="card-icon">🏅</span><span class="card-name">1500m</span><span class="card-unit">sek</span></div>
+            <div class="card-current" id="current-10" th:text="${scores.event10 != null ? scores.event10 : '—'}"></div>
+            <div class="card-input-row">
+                <input type="number" step="0.01" min="0" placeholder="Enter time" id="input-10" class="card-input">
+                <button class="btn-save" onclick="saveScore(10)">Spara</button>
+            </div>
+            <div class="card-feedback" id="feedback-10"></div>
+        </div>
+
+    </div><!-- /cards -->
+</main>
+
+<script th:src="@{/js/scores.js}"></script>
+</body>
+</html>

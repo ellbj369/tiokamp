@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>10 Kamp</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="auth-body">
+<div class="auth-card">
+    <div class="logo">🏅</div>
+    <h1 class="auth-title">10 Kamp</h1>
+    <p class="auth-subtitle">Logga in för att krossa dina motståndare</p>
+
+    <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
+    <form th:action="@{/login}" method="post" class="auth-form">
+        <div class="field">
+            <label for="username">Användarnamn</label>
+            <input type="text" id="username" name="username" autocomplete="username"
+                   placeholder="Ditt användarnamn" required>
+        </div>
+        <div class="field">
+            <label for="password">Lösenord</label>
+            <input type="password" id="password" name="password" autocomplete="current-password"
+                   placeholder="Your password" required>
+        </div>
+        <label class="remember-me">
+            <input type="checkbox" name="remember-me" checked>
+            <span>Håll mig inloggad</span>
+        </label>
+        <button type="submit" class="btn-primary">Logga in</button>
+    </form>
+
+    <p class="auth-switch">Inget konto? <a th:href="@{/register}">Skapa ett för att tävla!</a></p>
+</div>
+</body>
+</html>
