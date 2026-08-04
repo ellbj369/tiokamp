@@ -6,7 +6,7 @@ async function saveScore(eventNum) {
     const value    = parseFloat(input.value);
 
     if (isNaN(value) || value < 0) {
-        showFeedback(feedback, '⚠️ Enter a valid number', 'error');
+        showFeedback(feedback, '⚠️ Skriv något valid', 'error');
         return;
     }
 
@@ -37,7 +37,7 @@ async function saveScore(eventNum) {
             showFeedback(feedback, data.error || 'Fail', 'error');
         }
     } catch (err) {
-        showFeedback(feedback, 'Network error — try again', 'error');
+        showFeedback(feedback, 'Network error — försök igen', 'error');
     } finally {
         btn.disabled    = false;
         btn.textContent = 'Save';

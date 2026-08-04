@@ -9,28 +9,26 @@
 <body>
 
 <header class="top-bar">
-    <span class="top-bar-title">10 Kamp</span>
+    <span class="top-bar-title">Björck-linds 10 Kamp 🏅</span>
     <nav class="top-bar-nav">
-        <a th:href="@{/scores}">Mina poäng</a>
+        <a th:href="@{/scores}">Mina Poäng</a>
         <a th:href="@{/logout}" class="logout-link">Logga ut</a>
     </nav>
 </header>
 
 <main class="page">
 
-    <!-- Latest score banner -->
+    <!-- ── Latest score banner ─────────────────────────── -->
     <div id="latestBanner" class="latest-banner" th:if="${latest != null}">
         <div class="latest-inner">
             <img th:if="${latest.profilePicture != null}"
                  th:src="@{/uploads/__${latest.profilePicture}__}"
                  class="latest-avatar" alt="Profile">
-            <div class="latest-avatar latest-avatar-fallback"
-                 th:if="${latest.profilePicture == null}"
-                 th:text="${latest.username.substring(0,1).toUpperCase()}"></div>
+            <div class="latest-avatar latest-avatar-fallback" th:if="${latest.profilePicture == null}">?</div>
             <div class="latest-info">
                 <div class="latest-name" th:text="${latest.username}"></div>
                 <div class="latest-detail">
-                    gjorde <strong th:text="${latest.eventValue}"></strong>
+                    fick precis <strong th:text="${latest.eventValue}"></strong>
                     i <span th:text="${latest.eventName}"></span>
                 </div>
                 <div class="latest-total">Total: <strong th:text="${latest.totalScore}"></strong></div>
@@ -40,13 +38,11 @@
     </div>
 
     <div class="latest-empty" th:if="${latest == null}">
-        Inga poäng inlämnade ännu — bli den första!
+        <p>Inga poäng än! 🏃</p>
     </div>
 
-    <!-- Vine divider -->
-    <div class="lb-divider"></div>
-
-    <h2 class="section-title">Topp 3 per gren</h2>
+    <!-- ── Top 3 per event ─────────────────────────────── -->
+    <h2 class="section-title">Topp 3 Per Event</h2>
 
     <div class="leaderboard-categories">
         <div class="lb-category" th:each="cat : ${categories}">
@@ -61,8 +57,7 @@
                     <img th:if="${entry.profilePicture != null}"
                          th:src="@{/uploads/__${entry.profilePicture}__}"
                          class="lb-avatar" alt="avatar">
-                    <div class="lb-avatar lb-avatar-fallback"
-                         th:if="${entry.profilePicture == null}"
+                    <div class="lb-avatar lb-avatar-fallback" th:if="${entry.profilePicture == null}"
                          th:text="${entry.username.substring(0,1).toUpperCase()}"></div>
                     <span class="lb-name" th:text="${entry.username}"></span>
                     <span class="lb-value" th:text="${entry.value}"></span>

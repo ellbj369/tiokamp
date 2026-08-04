@@ -21,7 +21,7 @@ public class AuthController {
 
     @GetMapping("/login")
     public String loginPage(@RequestParam(required = false) String error, Model model) {
-        if (error != null) model.addAttribute("error", "Incorrect username or password.");
+        if (error != null) model.addAttribute("error", "Fel username eller lösenord.");
         return "login";
     }
 
@@ -38,16 +38,16 @@ public class AuthController {
             RedirectAttributes redirectAttributes
     ) {
         if (username.isBlank() || password.isBlank()) {
-            redirectAttributes.addFlashAttribute("error", "Username and password are required.");
+            redirectAttributes.addFlashAttribute("error", "Du måste ha ett användarnamn och ett lösenord INGET FUSKERI HÄR.");
             return "redirect:/register";
         }
         if (profilePicture.isEmpty()) {
-            redirectAttributes.addFlashAttribute("error", "Please upload a profile picture.");
+            redirectAttributes.addFlashAttribute("error", "Du måste ha en bild!!! Ta hjälp av medtävlande om du är kameraskygg.");
             return "redirect:/register";
         }
         try {
             userService.register(username, password, profilePicture);
-            redirectAttributes.addFlashAttribute("success", "Account created! Please log in.");
+            redirectAttributes.addFlashAttribute("success", "Kontot skapat! Snyggt jobbat. Nästa uppdrag: logga in.");
             return "redirect:/login";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());

@@ -9,7 +9,7 @@ async function refreshLatest() {
 
         el.querySelector('.latest-name').textContent   = d.username;
         el.querySelector('.latest-detail').innerHTML   =
-            `just scored <strong>${d.eventValue}</strong> in <span>${d.eventName}</span>`;
+            `gjorde precis <strong>${d.eventValue}</strong> i <span>${d.eventName}</span>`;
         el.querySelector('.latest-total').innerHTML    =
             `Total: <strong>${d.totalScore}</strong>`;
         el.querySelector('.latest-time').textContent   = d.updatedAt;
