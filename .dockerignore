@@ -1,0 +1,8 @@
+target/
+data/
+uploads/
+tiokampdb.mv.db
+tiokampdb.trace.db
+.claude/
+.gitignore
+*.md

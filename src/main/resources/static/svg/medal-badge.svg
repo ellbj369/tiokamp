@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 120" width="80" height="96">
+  <g transform="translate(50,65)" stroke="#4a7c2f" stroke-width="1.4" fill="none">
+    <path d="M-20,-70 L-8,-40 L0,-50 L8,-40 L20,-70 Z" fill="#c8e6a0" stroke="#4a7c2f"/>
+    <line x1="-4" y1="-70" x2="-4" y2="-40" stroke="#4a7c2f" stroke-width="0.5"/>
+    <line x1="4" y1="-70" x2="4" y2="-40" stroke="#4a7c2f" stroke-width="0.5"/>
+    <circle cx="0" cy="0" r="38" fill="#f0f8e8" stroke="#4a7c2f" stroke-width="1.8"/>
+    <circle cx="0" cy="0" r="30" stroke="#4a7c2f" stroke-width="0.7"/>
+    <path d="M-28,-10 Q-38,-5 -34,8 Q-26,2 -28,-10"/>
+    <path d="M-26,8 Q-38,10 -36,22 Q-26,16 -26,8"/>
+    <path d="M-22,22 Q-32,26 -28,38 Q-18,32 -22,22"/>
+    <path d="M28,-10 Q38,-5 34,8 Q26,2 28,-10"/>
+    <path d="M26,8 Q38,10 36,22 Q26,16 26,8"/>
+    <path d="M22,22 Q32,26 28,38 Q18,32 22,22"/>
+    <polygon points="0,-18 4,-6 16,-6 7,2 10,14 0,8 -10,14 -7,2 -16,-6 -4,-6" fill="#c8e6a0" stroke="#4a7c2f" stroke-width="1"/>
+  </g>
+</svg>

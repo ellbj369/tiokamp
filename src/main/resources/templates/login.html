@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="sv" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>10-kamp — Logga in</title>
+    <link rel="icon" th:href="@{/svg/windmill.svg}" type="image/svg+xml">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="auth-body">
+<div class="auth-card">
+    <div class="card-bunting" aria-hidden="true"></div>
+    <p class="wordmark">Erik &amp; Erika</p>
+    <h1 class="auth-title">10-kamp</h1>
+    <div class="auth-art">
+        <img th:src="@{/svg/windmill.svg}" alt="" width="200" height="158">
+    </div>
+    <p class="auth-subtitle">Logga in för att krossa dina motståndare</p>
+
+    <div th:if="${error}" class="alert alert-error">
+        <span th:text="${error}"></span>
+        <button type="button" class="alert-close" onclick="this.closest('.alert').remove()" aria-label="Stäng">×</button>
+    </div>
+    <div th:if="${success}" class="alert alert-success">
+        <span th:text="${success}"></span>
+        <button type="button" class="alert-close" onclick="this.closest('.alert').remove()" aria-label="Stäng">×</button>
+    </div>
+
+    <form th:action="@{/login}" method="post" class="auth-form">
+        <div class="field">
+            <label for="username">Användarnamn</label>
+            <input type="text" id="username" name="username" autocomplete="username"
+                   placeholder="Ditt användarnamn" required>
+        </div>
+        <div class="field">
+            <label for="password">Lösenord</label>
+            <input type="password" id="password" name="password" autocomplete="current-password"
+                   placeholder="Ditt lösenord" required>
+        </div>
+        <label class="remember-me">
+            <input type="checkbox" name="remember-me" checked>
+            <span>Håll mig inloggad</span>
+        </label>
+        <button type="submit" class="btn-primary">Logga in</button>
+    </form>
+
+    <p class="auth-switch">Inget konto? <a th:href="@{/register}">Skapa ett för att tävla!</a></p>
+</div>
+<p class="auth-footer">Erik &amp; Erika · Halltorps Hage, Öland · 19 september</p>
+</body>
+</html>

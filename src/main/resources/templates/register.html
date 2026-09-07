@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="sv" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>10-kamp — Skapa konto</title>
+    <link rel="icon" th:href="@{/svg/windmill.svg}" type="image/svg+xml">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="auth-body">
+<div class="auth-card">
+    <div class="card-bunting" aria-hidden="true"></div>
+    <p class="wordmark">Erik &amp; Erika</p>
+    <h1 class="auth-title">Skapa ett konto</h1>
+    <p class="auth-subtitle">Krossa dina motståndare</p>
+
+    <div th:if="${error}" class="alert alert-error">
+        <span th:text="${error}"></span>
+        <button type="button" class="alert-close" onclick="this.closest('.alert').remove()" aria-label="Stäng">×</button>
+    </div>
+
+    <form th:action="@{/register}" method="post" enctype="multipart/form-data" class="auth-form" id="registerForm">
+
+        <!-- Profile picture picker -->
+        <div class="avatar-picker">
+            <div class="avatar-preview" id="avatarPreview">
+                <span class="avatar-placeholder">📷</span>
+            </div>
+            <label class="avatar-label" for="profilePicture" id="avatarLabel">Ta en bild!</label>
+            <input type="file" id="profilePicture" name="profilePicture"
+                   accept="image/*" capture="user" required>
+        </div>
+
+        <div class="field">
+            <label for="username">Användarnamn</label>
+            <input type="text" id="username" name="username" autocomplete="username"
+                   placeholder="Välj ett användarnamn" minlength="2" maxlength="30" required>
+        </div>
+        <div class="field">
+            <label for="password">Lösenord</label>
+            <input type="password" id="password" name="password" autocomplete="new-password"
+                   placeholder="Välj ett lösenord (minst 4 tecken)" minlength="4" required>
+        </div>
+
+        <button type="submit" class="btn-primary" id="registerBtn">Skapa konto och tävla</button>
+    </form>
+
+    <p class="auth-switch">Har du redan ett konto? <a th:href="@{/login}">Logga in</a></p>
+    <img class="auth-flower" th:src="@{/svg/cornflower.svg}" alt="" width="52" height="74">
+</div>
+<p class="auth-footer">Erik &amp; Erika · Halltorps Hage, Öland · 19 september</p>
+
+<script>
+    // Photos straight from a phone camera are often 5–10 MB; downscale in the
+    // browser so uploads are fast and never hit the server's size limit.
+    const MAX_DIMENSION = 1200;
+    const JPEG_QUALITY  = 0.85;
+    const fileInput = document.getElementById('profilePicture');
+
+    fileInput.addEventListener('change', async () => {
+        const file = fileInput.files[0];
+        if (!file) return;
+        showPreview(file);
+        document.getElementById('avatarLabel').textContent = 'Bild vald ✓';
+        try {
+            const compressed = await compressImage(file);
+            if (compressed && compressed.size < file.size) {
+                const transfer = new DataTransfer();
+                transfer.items.add(new File([compressed], 'bild.jpg', { type: 'image/jpeg' }));
+                fileInput.files = transfer.files;
+            }
+        } catch (e) {
+            // Keep the original file — the server accepts up to 15 MB as a fallback
+        }
+    });
+
+    function showPreview(file) {
+        const reader = new FileReader();
+        reader.onload = e => {
+            document.getElementById('avatarPreview').innerHTML =
+                `<img src="${e.target.result}" alt="Förhandsvisning">`;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function compressImage(file) {
+        return new Promise((resolve, reject) => {
+            const url = URL.createObjectURL(file);
+            const img = new Image();
+            img.onload = () => {
+                const scale  = Math.min(1, MAX_DIMENSION / Math.max(img.width, img.height));
+                const canvas = document.createElement('canvas');
+                canvas.width  = Math.round(img.width * scale);
+                canvas.height = Math.round(img.height * scale);
+                canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                URL.revokeObjectURL(url);
+                canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('toBlob failed')),
+                              'image/jpeg', JPEG_QUALITY);
+            };
+            img.onerror = reject;
+            img.src = url;
+        });
+    }
+
+    document.getElementById('registerForm').addEventListener('submit', () => {
+        const btn = document.getElementById('registerBtn');
+        btn.disabled = true;
+        btn.textContent = 'Skapar konto…';
+    });
+</script>
+</body>
+</html>

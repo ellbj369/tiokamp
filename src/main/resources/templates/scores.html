@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="sv" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>10-kamp — Mina poäng</title>
+    <link rel="icon" th:href="@{/svg/windmill.svg}" type="image/svg+xml">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<header class="top-bar">
+    <span class="top-bar-title">Björck-linds 10-kamp</span>
+    <nav class="top-bar-nav">
+        <a th:href="@{/leaderboard}">Resultattavla</a>
+        <a th:href="@{/admin}" sec:authorize="hasRole('ADMIN')">Admin</a>
+        <a th:href="@{/logout}" class="logout-link">Logga ut</a>
+    </nav>
+</header>
+
+<main class="page">
+    <div class="page-title-row">
+        <div>
+            <h2 class="page-title">Dina poäng</h2>
+            <p class="page-sub" th:text="'Tävlar som ' + ${username}"></p>
+        </div>
+        <img class="title-art" th:src="@{/svg/wheat.svg}" alt="" width="64" height="89">
+    </div>
+
+    <div th:if="${success}" class="alert alert-success">
+        <span th:text="${success}"></span>
+        <button type="button" class="alert-close" onclick="this.closest('.alert').remove()" aria-label="Stäng">×</button>
+    </div>
+
+    <div class="locked-banner" th:if="${locked}">
+        🔒 Tävlingen är avslutad — slutresultatet är klart!
+        <a th:href="@{/leaderboard}">Se resultattavlan</a>
+    </div>
+
+    <div id="saveToast" class="toast" aria-live="polite"></div>
+
+    <div class="cards">
+        <div class="event-card" th:each="ev : ${events}" th:id="'card-' + ${ev.number}">
+            <div class="card-header">
+                <span class="card-icon" th:text="${ev.icon}"></span>
+                <span class="card-name" th:text="${ev.displayName}"></span>
+                <button type="button" class="btn-info"
+                        th:if="${!#strings.isEmpty(ev.description)}"
+                        th:attr="data-icon=${ev.icon},data-name=${ev.displayName},data-description=${ev.description},aria-label='Om grenen ' + ${ev.displayName}">?</button>
+                <span class="card-unit" th:text="${ev.unit}"></span>
+            </div>
+            <div class="card-current" th:id="'current-' + ${ev.number}" th:text="${current[ev.number]}"></div>
+            <div class="card-input-row" th:if="${!locked}">
+                <input type="text" inputmode="decimal" autocomplete="off"
+                       th:placeholder="${ev.prompt}" th:id="'input-' + ${ev.number}" class="card-input">
+                <button type="button" class="btn-save" th:attr="data-event=${ev.number}">Spara</button>
+            </div>
+            <div class="card-feedback" th:id="'feedback-' + ${ev.number}"></div>
+        </div>
+    </div><!-- /cards -->
+</main>
+
+<!-- Event description popup, filled in by scores.js from the ?-buttons -->
+<dialog id="eventInfoDialog" class="event-dialog">
+    <div class="event-dialog-header">
+        <span id="eventInfoIcon" class="event-dialog-icon"></span>
+        <h3 id="eventInfoTitle" class="event-dialog-title"></h3>
+    </div>
+    <p id="eventInfoText" class="event-dialog-text"></p>
+    <button type="button" class="btn-primary" id="eventInfoClose">Stäng</button>
+</dialog>
+
+<footer class="site-footer">
+    <div class="footer-vine" aria-hidden="true"></div>
+    <span class="footer-wordmark">Erik &amp; Erika</span>
+    <span class="footer-detail">Halltorps Hage, Öland · 19 september</span>
+</footer>
+
+<script th:src="@{/js/scores.js}"></script>
+</body>
+</html>

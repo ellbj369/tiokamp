@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 190">
+  <!-- Öland windmill on rolling hills, hand-drawn line style -->
+  <g stroke="#4a7c2f" fill="none" stroke-linecap="round">
+    <!-- sky squiggles -->
+    <g stroke-width="1.2" opacity="0.8">
+      <path d="M30,42 q9,-5 18,0"/>
+      <path d="M58,68 q8,-4 16,0"/>
+      <path d="M162,26 q8,-4 16,0"/>
+      <path d="M190,56 q9,-5 18,0"/>
+      <path d="M205,34 q7,-4 14,0"/>
+    </g>
+    <!-- hills -->
+    <g stroke-width="1.4">
+      <path d="M0,164 Q55,138 115,158 Q175,178 240,158"/>
+      <path d="M0,184 Q70,161 140,177 Q200,189 240,179"/>
+    </g>
+    <!-- body -->
+    <g stroke-width="1.6">
+      <path d="M109,102 L131,102 L136,152 L104,152 Z" fill="#ffffff"/>
+      <!-- legs -->
+      <path d="M104,152 L95,177"/>
+      <path d="M136,152 L145,177"/>
+      <path d="M120,152 L120,179"/>
+    </g>
+    <!-- sails with lattice -->
+    <g transform="translate(120,96)" stroke-width="1.5">
+      <g>
+        <g transform="rotate(40)">
+          <path d="M10,-11 L58,-11 L58,11 L10,11 Z"/>
+          <line x1="22" y1="-11" x2="22" y2="11"/>
+          <line x1="34" y1="-11" x2="34" y2="11"/>
+          <line x1="46" y1="-11" x2="46" y2="11"/>
+          <line x1="10" y1="0" x2="58" y2="0"/>
+        </g>
+        <g transform="rotate(130)">
+          <path d="M10,-11 L58,-11 L58,11 L10,11 Z"/>
+          <line x1="22" y1="-11" x2="22" y2="11"/>
+          <line x1="34" y1="-11" x2="34" y2="11"/>
+          <line x1="46" y1="-11" x2="46" y2="11"/>
+          <line x1="10" y1="0" x2="58" y2="0"/>
+        </g>
+        <g transform="rotate(220)">
+          <path d="M10,-11 L58,-11 L58,11 L10,11 Z"/>
+          <line x1="22" y1="-11" x2="22" y2="11"/>
+          <line x1="34" y1="-11" x2="34" y2="11"/>
+          <line x1="46" y1="-11" x2="46" y2="11"/>
+          <line x1="10" y1="0" x2="58" y2="0"/>
+        </g>
+        <g transform="rotate(310)">
+          <path d="M10,-11 L58,-11 L58,11 L10,11 Z"/>
+          <line x1="22" y1="-11" x2="22" y2="11"/>
+          <line x1="34" y1="-11" x2="34" y2="11"/>
+          <line x1="46" y1="-11" x2="46" y2="11"/>
+          <line x1="10" y1="0" x2="58" y2="0"/>
+        </g>
+      </g>
+      <circle cx="0" cy="0" r="3.5" fill="#f0f8e8"/>
+    </g>
+    <!-- ground stroke -->
+    <path d="M92,178 q28,6 56,0" stroke-width="1.2"/>
+  </g>
+</svg>

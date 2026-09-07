@@ -1,0 +1,12 @@
+# Build output
+target/
+
+# Runtime data — H2 database and uploaded profile pictures
+uploads/
+data/
+tiokampdb.mv.db
+tiokampdb.trace.db
+
+# Local tooling / OS
+.claude/
+.DS_Store

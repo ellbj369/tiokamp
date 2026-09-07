@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="sv" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>10-kamp — Admin</title>
+    <link rel="icon" th:href="@{/svg/windmill.svg}" type="image/svg+xml">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<header class="top-bar">
+    <span class="top-bar-title">Björck-linds 10-kamp</span>
+    <nav class="top-bar-nav">
+        <a th:href="@{/scores}">Mina poäng</a>
+        <a th:href="@{/leaderboard}">Resultattavla</a>
+        <a th:href="@{/logout}" class="logout-link">Logga ut</a>
+    </nav>
+</header>
+
+<main class="page page--wide">
+    <div class="page-title-row">
+        <div>
+            <h2 class="page-title">Admin</h2>
+            <p class="page-sub">Alla resultat och slutberäkningen</p>
+        </div>
+        <img class="title-art" th:src="@{/svg/wheat.svg}" alt="" width="64" height="89">
+    </div>
+
+    <div th:if="${success}" class="alert alert-success">
+        <span th:text="${success}"></span>
+        <button type="button" class="alert-close" onclick="this.closest('.alert').remove()" aria-label="Stäng">×</button>
+    </div>
+    <div th:if="${error}" class="alert alert-error">
+        <span th:text="${error}"></span>
+        <button type="button" class="alert-close" onclick="this.closest('.alert').remove()" aria-label="Stäng">×</button>
+    </div>
+
+    <section class="admin-status">
+        <div class="admin-stats">
+            <div class="admin-stat">
+                <span class="admin-stat-value" th:text="${rows.size()}">0</span>
+                <span class="admin-stat-label">deltagare</span>
+            </div>
+            <div class="admin-stat">
+                <span class="admin-stat-value" th:text="${withScores}">0</span>
+                <span class="admin-stat-label">har lämnat resultat</span>
+            </div>
+            <div class="admin-stat">
+                <span class="admin-stat-value" th:text="${resultsCalculated} ? 'Avslutad' : 'Pågår'">Pågår</span>
+                <span class="admin-stat-label">status</span>
+            </div>
+        </div>
+
+        <p class="admin-note">
+            Så räknas det: i varje gren får sämst placerad lika många poäng som antalet deltagare,
+            näst sämst en poäng mindre, och så vidare — bäst i grenen får 1 poäng. Systemet vet
+            riktningen per gren: högst vinner (dart, ringar, corn hole), lägst vinner (boule,
+            penna i flaska, på minuten) och närmast facit vinner (makaronigissningen). Delade
+            placeringar delar på poängen (snittet av platserna). Saknat resultat i en gren räknas
+            som sist. <strong>Lägst totalpoäng vinner.</strong> Beräkningen låser poänginmatningen för alla.
+        </p>
+
+        <div class="alert alert-error" th:if="${needsFacit}">
+            <span>Makaronifacit är inte satt — slutresultatet kan inte beräknas utan det.
+            Sätt <code>APP_MAKARONI_FACIT</code> i docker-compose.yml (eller
+            <code>app.makaroni-facit</code> i application.properties) och starta om.</span>
+        </div>
+        <p class="admin-note" th:if="${makaroniFacit != null}">
+            Makaronifacit: <strong th:text="${#numbers.formatDecimal(makaroniFacit, 1, 0)}"></strong> st.
+        </p>
+
+        <div class="admin-actions">
+            <form th:action="@{/admin/calculate}" method="post"
+                  onsubmit="return confirm(this.querySelector('button').dataset.confirm)">
+                <button type="submit" class="btn-primary"
+                        th:text="${resultsCalculated} ? 'Räkna om slutresultatet' : 'Beräkna slutresultatet'"
+                        th:attr="data-confirm=${resultsCalculated}
+                            ? 'Räkna om slutresultatet utifrån nuvarande råresultat?'
+                            : 'Beräkna slutresultatet? Poänginmatningen låses för alla deltagare.'">
+                    Beräkna slutresultatet
+                </button>
+            </form>
+            <form th:action="@{/admin/clear-results}" method="post" th:if="${resultsCalculated}"
+                  onsubmit="return confirm('Ta bort slutresultatet och öppna poänginmatningen igen?')">
+                <button type="submit" class="btn-secondary">Öppna spelet igen</button>
+            </form>
+        </div>
+    </section>
+
+    <h3 class="section-title" th:text="${resultsCalculated} ? 'Slutställning' : 'Inlämnade resultat'">Inlämnade resultat</h3>
+
+    <div class="table-wrap">
+        <table class="admin-table">
+            <thead>
+            <tr>
+                <th class="col-rank" th:if="${resultsCalculated}">Plac.</th>
+                <th class="col-name">Namn</th>
+                <th th:each="ev : ${events}" th:title="${ev.displayName}">
+                    <span th:text="${ev.icon}"></span>
+                    <span class="th-label" th:text="${ev.displayName}"></span>
+                </th>
+                <th class="col-filled">Grenar</th>
+                <th class="col-total" th:if="${resultsCalculated}">Totalt</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="row : ${rows}">
+                <td class="col-rank" th:if="${resultsCalculated}" th:text="${row.rank != null ? row.rank : '–'}"></td>
+                <td class="col-name">
+                    <img th:if="${row.profilePicture != null}"
+                         th:src="@{/uploads/__${row.profilePicture}__}" class="admin-avatar" alt="">
+                    <span th:text="${row.username}"></span>
+                </td>
+                <td th:each="v, it : ${row.values}">
+                    <span class="cell-raw" th:text="${v}"></span>
+                    <span class="cell-points" th:if="${row.points != null}"
+                          th:text="${row.points[it.index]} + ' p'"></span>
+                </td>
+                <td class="col-filled" th:text="${row.filledCount} + '/' + ${events.length}"></td>
+                <td class="col-total" th:if="${resultsCalculated}"
+                    th:text="${row.totalPoints != null ? row.totalPoints + ' p' : '–'}"></td>
+            </tr>
+            <tr th:if="${rows.isEmpty()}">
+                <td colspan="20" class="admin-empty">Inga deltagare har registrerat sig än.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+
+<footer class="site-footer">
+    <div class="footer-vine" aria-hidden="true"></div>
+    <span class="footer-wordmark">Erik &amp; Erika</span>
+    <span class="footer-detail">Halltorps Hage, Öland · 19 september</span>
+</footer>
+
+</body>
+</html>

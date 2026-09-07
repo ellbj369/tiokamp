@@ -1,0 +1,18 @@
+services:
+  tiokamp:
+    build: .
+    container_name: tiokamp
+    ports:
+      # host 8082 -> container 8080; DSM's reverse proxy points at localhost:8082
+      - "8082:8080"
+    volumes:
+      # H2 database + uploaded profile pictures, next to this file on the NAS
+      - ./data:/data
+    environment:
+      # Comma-separated usernames that get the admin page (case-insensitive)
+      APP_ADMIN_USERNAMES: elli
+      # The actual number of macaroni in the jar — required before the final
+      # calculation. Uncomment and set once the jar is filled, then restart.
+      # APP_MAKARONI_FACIT: "537"
+    restart: unless-stopped
+    mem_limit: 1g

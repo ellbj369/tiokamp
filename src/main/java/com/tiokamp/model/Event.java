@@ -1,0 +1,103 @@
+package com.tiokamp.model;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+/**
+ * Central definition of the events — names, units, icons, input prompts,
+ * descriptions and scoring direction. Change the events for the party here;
+ * templates, services and the placement calculation all read from this.
+ * An event with an empty description gets no ?-button.
+ *
+ * Directions:
+ *   HIGHEST — highest raw value wins the event (points, hits)
+ *   LOWEST  — lowest raw value wins (seconds, centimeters)
+ *   CLOSEST — closest to a target wins (the target comes from the
+ *             app.makaroni-facit property / APP_MAKARONI_FACIT env var)
+ */
+@Getter
+@RequiredArgsConstructor
+public enum Event {
+
+    DART(1, "Dart", "p", "🎯", "Ange poäng", Direction.HIGHEST,
+            "Varje deltagare kastar 6 pilar mot piltavlan (1–10 poäng, bullseye 10 p). "
+          + "Summan av pilarna som sitter fast registreras. Höjd till bullseye 173 cm, "
+          + "avstånd till tavlan 237 cm — stå som närmast vid plankans framkant."),
+
+    BOULE(2, "Boule", "cm", "⚪", "Ange cm", Direction.LOWEST,
+            "Varje deltagare kastar 4 klot mot pinnen. Avståndet mellan närmsta klot och "
+          + "pinnen mäts och registreras i centimeter — kortast avstånd vinner. "
+          + "Avstånd från plankans framkant till pinnen: 5 m."),
+
+    MAKARONIGISSNING(3, "Makaronigissning", "st", "🍝", "Ange gissning", Direction.CLOSEST,
+            "Gissa hur många makaroner det är i glasburken och registrera din gissning. "
+          + "Närmast rätt antal vinner."),
+
+    RINGAR(4, "Ringar", "p", "⭕", "Ange poäng", Direction.HIGHEST,
+            "Fem ringar kastas mot korset med fem pinnar, värda 10–50 poäng "
+          + "(10 p närmast kastaren). Avstånd från plankan till 10-poängspinnen: 150 cm. "
+          + "Registrera din sammanlagda poäng."),
+
+    CORN_HOLE(5, "Corn hole", "p", "🌽", "Ange poäng", Direction.HIGHEST,
+            "Varje deltagare kastar 6 påsar mot den lutande plattan: 2 p för påse i hålet, "
+          + "1 p för påse som ligger kvar på plattan utan att nudda gräset. "
+          + "Avstånd från kastaren till plattans framkant: 5 m. Räkna ihop och registrera poängen."),
+
+    PENNA_I_FLASKA(6, "Penna i flaska", "sek", "✏️", "Ange sekunder", Direction.LOWEST,
+            "Med ett snöre fäst vid midjan och en penna i änden bakom ryggen: gå fram till "
+          + "flaskan (du startar 1 m bort) och sänk ner pennan helt i flaskan utan att röra "
+          + "snöre eller penna. Justera gärna snörets längd innan start. "
+          + "Tiden i sekunder registreras — snabbast vinner."),
+
+    PA_MINUTEN(7, "På minuten", "sek", "⏱️", "Ange fel (sek)", Direction.LOWEST,
+            "Håll tidtagaruret bakom ryggen, starta med ett tryck och stoppa med nästa när "
+          + "du tror att exakt 60 sekunder har gått. Registrera hur många sekunder fel du var "
+          + "(positivt tal, avrundat till hel sekund) — minst fel vinner."),
+
+    // Description left empty on purpose — no ?-popup appears until rules text is added.
+    KROCKET(8, "Krocket", "p", "🏑", "Ange poäng", Direction.HIGHEST, ""),
+
+    SNORBOLLAR(9, "Snörbollar", "p", "🧶", "Ange poäng", Direction.HIGHEST, "");
+
+    public enum Direction { HIGHEST, LOWEST, CLOSEST }
+
+    private final int number;
+    private final String displayName;
+    private final String unit;
+    private final String icon;
+    private final String prompt;
+    private final Direction direction;
+    private final String description;
+
+    public static Event byNumber(int number) {
+        if (number < 1 || number > values().length) {
+            throw new IllegalArgumentException("Ogiltigt grennummer: " + number);
+        }
+        return values()[number - 1];
+    }
+
+    public static int count() {
+        return values().length;
+    }
+
+    /**
+     * Maps a raw result to a value where HIGHER always means BETTER, so the
+     * placement calculation can stay direction-agnostic. For CLOSEST events the
+     * target must be set; returns null for missing raw values.
+     */
+    public Double rankingValue(Double raw, Double target) {
+        if (raw == null) return null;
+        return switch (direction) {
+            case HIGHEST -> raw;
+            case LOWEST -> -raw;
+            case CLOSEST -> {
+                if (target == null) {
+                    throw new IllegalStateException(
+                            "Grenen '" + displayName + "' rankas mot ett facit som inte är satt "
+                          + "(app.makaroni-facit / miljövariabeln APP_MAKARONI_FACIT).");
+                }
+                yield -Math.abs(raw - target);
+            }
+        };
+    }
+}

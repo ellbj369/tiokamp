@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 70" width="100%">
+  <g stroke="#4a7c2f" stroke-width="1" fill="none">
+    <path d="M0,5 Q75,25 150,10 Q225,25 300,10 Q375,25 450,10 Q525,25 600,10"/>
+    <polygon points="75,25 65,55 85,55" fill="#d4ebb0" stroke="#4a7c2f" stroke-width="1"/>
+    <polygon points="150,10 140,40 160,40" fill="#f0f8e8" stroke="#4a7c2f" stroke-width="1"/>
+    <polygon points="225,25 215,55 235,55" fill="#c8e6a0" stroke="#4a7c2f" stroke-width="1"/>
+    <polygon points="300,10 290,40 310,40" fill="#d4ebb0" stroke="#4a7c2f" stroke-width="1"/>
+    <polygon points="375,25 365,55 385,55" fill="#f0f8e8" stroke="#4a7c2f" stroke-width="1"/>
+    <polygon points="450,10 440,40 460,40" fill="#c8e6a0" stroke="#4a7c2f" stroke-width="1"/>
+    <polygon points="525,25 515,55 535,55" fill="#d4ebb0" stroke="#4a7c2f" stroke-width="1"/>
+    <line x1="67" y1="35" x2="83" y2="35" stroke="#4a7c2f" stroke-width="0.5"/>
+    <line x1="68" y1="41" x2="82" y2="41" stroke="#4a7c2f" stroke-width="0.5"/>
+    <line x1="291" y1="23" x2="309" y2="23" stroke="#4a7c2f" stroke-width="0.5"/>
+    <line x1="292" y1="29" x2="308" y2="29" stroke="#4a7c2f" stroke-width="0.5"/>
+    <line x1="516" y1="35" x2="534" y2="35" stroke="#4a7c2f" stroke-width="0.5"/>
+  </g>
+</svg>
