@@ -14,5 +14,11 @@ services:
       # The actual number of macaroni in the jar — required before the final
       # calculation. Uncomment and set once the jar is filled, then restart.
       # APP_MAKARONI_FACIT: "537"
+      # ── Performance on modest NAS hardware (change these = restart, no rebuild) ──
+      # Cache compiled page templates instead of re-parsing them every request.
+      SPRING_THYMELEAF_CACHE: "true"
+      # BCrypt work factor: 8 is ~4x faster than the default 10 and fine for a
+      # party game on the local network. Drop to "6" if logins are still slow.
+      APP_BCRYPT_STRENGTH: "8"
     restart: unless-stopped
     mem_limit: 1g

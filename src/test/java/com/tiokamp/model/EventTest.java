@@ -44,6 +44,15 @@ class EventTest {
     }
 
     @Test
+    void klippaSnoreScoresBySmallestDifference() {
+        // entered value = cm away from 30; smaller difference must rank better
+        Double closer  = Event.KLIPPA_SNORE.rankingValue(1.0, null); // 1 cm off
+        Double farther = Event.KLIPPA_SNORE.rankingValue(5.0, null); // 5 cm off
+        assertTrue(closer > farther);
+        assertEquals(10, Event.KLIPPA_SNORE.getNumber());
+    }
+
+    @Test
     void eventNumbersAreSequentialFromOne() {
         Event[] events = Event.values();
         for (int i = 0; i < events.length; i++) {

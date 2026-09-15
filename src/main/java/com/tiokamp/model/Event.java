@@ -57,7 +57,12 @@ public enum Event {
     // Description left empty on purpose — no ?-popup appears until rules text is added.
     KROCKET(8, "Krocket", "p", "🏑", "Ange poäng", Direction.HIGHEST, ""),
 
-    SNORBOLLAR(9, "Snörbollar", "p", "🧶", "Ange poäng", Direction.HIGHEST, "");
+    SNORBOLLAR(9, "Snörbollar", "p", "🧶", "Ange poäng", Direction.HIGHEST, ""),
+
+    // You enter the absolute difference from 30 cm; smallest difference wins (LOWEST).
+    KLIPPA_SNORE(10, "Klippa snöre", "cm", "✂️", "Ange cm från 30", Direction.LOWEST,
+            "Du ska klippa ett snöre exakt 30 centimeter långt. Poängen mäts i differensen, "
+          + "så centimeter från 30 centimeter. Minst differens vinner.");
 
     public enum Direction { HIGHEST, LOWEST, CLOSEST }
 

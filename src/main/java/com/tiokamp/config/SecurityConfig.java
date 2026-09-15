@@ -23,6 +23,11 @@ public class SecurityConfig {
     @Value("${app.remember-me-validity-seconds}")
     private int rememberMeValiditySeconds;
 
+    // BCrypt work factor. Lower = faster logins/registrations (helpful on weak
+    // hardware such as a NAS); higher = more resistant to offline cracking.
+    @Value("${app.bcrypt-strength:10}")
+    private int bcryptStrength;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -58,7 +63,7 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        return new BCryptPasswordEncoder(bcryptStrength);
     }
 
     @Bean

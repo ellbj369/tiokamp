@@ -1,14 +1,15 @@
 package com.tiokamp.controller;
 
 import com.tiokamp.model.User;
+import com.tiokamp.service.CustomUserDetailsService;
 import com.tiokamp.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
@@ -24,7 +25,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class AuthController {
 
     private final UserService userService;
-    private final AuthenticationManager authenticationManager;
+    private final CustomUserDetailsService userDetailsService;
 
     // Most guests arrive once, create an account and are done — so registration
     // is the front door; login is linked from there for the rare returner.
@@ -73,10 +74,13 @@ public class AuthController {
             return "redirect:/register";
         }
 
-        // Log the new user in directly so they land in the game
+        // Log the new user in directly so they land in the game. We just created
+        // the account, so there's no need to re-verify the password (an expensive
+        // BCrypt hash) — build an authenticated token straight from the user.
         try {
-            Authentication auth = authenticationManager.authenticate(
-                    UsernamePasswordAuthenticationToken.unauthenticated(user.getUsername(), password));
+            UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUsername());
+            Authentication auth = UsernamePasswordAuthenticationToken.authenticated(
+                    userDetails, null, userDetails.getAuthorities());
             SecurityContext context = SecurityContextHolder.createEmptyContext();
             context.setAuthentication(auth);
             SecurityContextHolder.setContext(context);
