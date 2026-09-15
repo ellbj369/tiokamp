@@ -9,8 +9,9 @@ services:
       # H2 database + uploaded profile pictures, next to this file on the NAS
       - ./data:/data
     environment:
-      # Comma-separated usernames that get the admin page (case-insensitive)
-      APP_ADMIN_USERNAMES: elli
+      # Permanent admins (case-insensitive). Others can be promoted from the
+      # admin page; these config ones are the safety net and can't be demoted there.
+      APP_ADMIN_USERNAMES: ellan
       # The actual number of macaroni in the jar — required before the final
       # calculation. Uncomment and set once the jar is filled, then restart.
       # APP_MAKARONI_FACIT: "537"

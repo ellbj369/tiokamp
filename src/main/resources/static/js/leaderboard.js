@@ -10,6 +10,8 @@ async function refreshLatest() {
         el.querySelector('.latest-name').textContent = d.username;
         el.querySelector('.latest-detail').innerHTML =
             `gjorde precis <strong>${d.eventValue}</strong> i <span>${d.eventName}</span>`;
+        const msg = el.querySelector('.latest-message');
+        if (msg) msg.textContent = d.message || '';
         el.querySelector('.latest-time').textContent = d.updatedAt;
 
         const img = el.querySelector('.latest-avatar');

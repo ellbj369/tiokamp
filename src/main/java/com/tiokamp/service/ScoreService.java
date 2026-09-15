@@ -5,13 +5,13 @@ import com.tiokamp.dto.EventCategoryDto;
 import com.tiokamp.dto.FinalStandingDto;
 import com.tiokamp.dto.LatestScoreDto;
 import com.tiokamp.dto.TopEntryDto;
+import com.tiokamp.config.AdminWhitelist;
 import com.tiokamp.model.Event;
 import com.tiokamp.model.Score;
 import com.tiokamp.model.User;
 import com.tiokamp.repository.ScoreRepository;
 import com.tiokamp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,14 +32,9 @@ public class ScoreService {
     private final ScoreRepository scoreRepository;
     private final UserRepository userRepository;
     private final UserService userService;
-
-    /**
-     * Facit for the macaroni guessing event (Direction.CLOSEST). Must be set
-     * before the final calculation — via application.properties or the
-     * APP_MAKARONI_FACIT environment variable in docker-compose.yml.
-     */
-    @Value("${app.makaroni-facit:#{null}}")
-    private Double makaroniFacit;
+    private final SettingsService settingsService;
+    private final AdminWhitelist adminWhitelist;
+    private final ScoreMessages scoreMessages;
 
     private static final DateTimeFormatter FORMATTER =
             DateTimeFormatter.ofPattern("HH:mm, d MMM", Locale.forLanguageTag("sv-SE"));
@@ -77,14 +72,34 @@ public class ScoreService {
         if (recent.isEmpty()) return null;
 
         Score s = recent.get(0);
+        Event event = Event.byDisplayName(s.getLastUpdatedEvent());
+        Integer placement = latestPlacement(event, s.getLastUpdatedValue());
+        long seed = (s.getUser().getUsername() + "|" + s.getLastUpdatedAt()).hashCode();
+
         return new LatestScoreDto(
                 s.getUser().getUsername(),
                 s.getUser().getProfilePicture(),
                 s.getLastUpdatedEvent(),
                 fmt(s.getLastUpdatedValue()),
                 s.getTotalScore(),
-                s.getLastUpdatedAt() != null ? s.getLastUpdatedAt().format(FORMATTER) : ""
+                s.getLastUpdatedAt() != null ? s.getLastUpdatedAt().format(FORMATTER) : "",
+                scoreMessages.forPlacement(placement, seed)
         );
+    }
+
+    /** 1-based placement of a value within its event (direction-aware), or null if unrankable. */
+    private Integer latestPlacement(Event event, Double value) {
+        if (event == null || value == null) return null;
+        Double facit = settingsService.getMakaroniFacit();
+        if (event.getDirection() == Event.Direction.CLOSEST && facit == null) return null;
+        double mine = event.rankingValue(value, facit);
+        int better = 0;
+        for (Score other : scoreRepository.findAllWithUser()) {
+            Double otherValue = other.getEventByNumber(event.getNumber());
+            if (otherValue == null) continue;
+            if (event.rankingValue(otherValue, facit) > mine) better++;
+        }
+        return better + 1;
     }
 
     /**
@@ -95,6 +110,7 @@ public class ScoreService {
     public List<EventCategoryDto> getLeaderboard() {
         List<Score> allScores = scoreRepository.findAllWithUser();
         List<EventCategoryDto> categories = new ArrayList<>();
+        Double makaroniFacit = settingsService.getMakaroniFacit();
 
         for (Event event : Event.values()) {
             boolean rankable = event.getDirection() != Event.Direction.CLOSEST
@@ -150,6 +166,7 @@ public class ScoreService {
         Map<Long, Score> scoreByUserId = new HashMap<>();
         Map<Long, Double[]> rankingByUserId = new LinkedHashMap<>();
         Event[] events = Event.values();
+        Double makaroniFacit = settingsService.getMakaroniFacit();
 
         for (User user : users) {
             Score score = scoreRepository.findByUserId(user.getId()).orElseGet(() -> {
@@ -203,10 +220,16 @@ public class ScoreService {
     public List<AdminRowDto> getAdminRows() {
         boolean calculated = resultsCalculated();
         List<User> users = userRepository.findAll();
+        // Load every score in one query (join-fetching the user) instead of one
+        // query per participant.
+        Map<Long, Score> scoreByUserId = new HashMap<>();
+        for (Score s : scoreRepository.findAllWithUser()) {
+            scoreByUserId.put(s.getUser().getId(), s);
+        }
         List<AdminRowDto> rows = new ArrayList<>();
 
         for (User user : users) {
-            Score score = scoreRepository.findByUserId(user.getId()).orElse(null);
+            Score score = scoreByUserId.get(user.getId());
             List<String> values = new ArrayList<>(Event.count());
             List<String> points = calculated ? new ArrayList<>(Event.count()) : null;
             for (Event event : Event.values()) {
@@ -215,6 +238,7 @@ public class ScoreService {
                     points.add(fmt(score != null ? score.getPointsByNumber(event.getNumber()) : null));
                 }
             }
+            boolean listed = adminWhitelist.isListed(user.getUsername());
             rows.add(new AdminRowDto(
                     score != null ? score.getFinalRank() : null,
                     user.getUsername(),
@@ -222,7 +246,9 @@ public class ScoreService {
                     values,
                     points,
                     score != null ? score.getFilledCount() : 0,
-                    calculated && score != null ? fmt(score.getPlacementTotal()) : null
+                    calculated && score != null ? fmt(score.getPlacementTotal()) : null,
+                    listed || user.isAdmin(),
+                    listed
             ));
         }
 
@@ -241,7 +267,7 @@ public class ScoreService {
     }
 
     public Double getMakaroniFacit() {
-        return makaroniFacit;
+        return settingsService.getMakaroniFacit();
     }
 
     /** Swedish display format: no trailing zeros, decimal comma, "—" for missing. */

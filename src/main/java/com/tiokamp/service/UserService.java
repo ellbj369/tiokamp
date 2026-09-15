@@ -3,6 +3,7 @@ package com.tiokamp.service;
 import com.tiokamp.model.User;
 import com.tiokamp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,7 @@ import java.nio.file.*;
 import java.util.Set;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -53,6 +55,44 @@ public class UserService {
     public User findByUsername(String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("Hittade ingen användare: " + username));
+    }
+
+    /**
+     * Removes a participant, their score (via cascade) and their profile picture.
+     * Refuses to delete the account making the request, so an admin can't lock
+     * themselves out mid-session. Returns the deleted username.
+     */
+    @Transactional
+    public String deleteUser(String username, String requestedBy) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("Deltagaren finns inte (kan redan vara borttagen)."));
+        if (user.getUsername().equalsIgnoreCase(requestedBy)) {
+            throw new IllegalArgumentException("Du kan inte ta bort ditt eget konto medan du är inloggad.");
+        }
+        deleteProfilePicture(user.getProfilePicture());
+        userRepository.delete(user); // cascade removes the Score row
+        return user.getUsername();
+    }
+
+    /** Grants or revokes dynamic admin. Refuses to change the requester's own status. */
+    @Transactional
+    public void setAdmin(String username, boolean makeAdmin, String requestedBy) {
+        if (username.equalsIgnoreCase(requestedBy)) {
+            throw new IllegalArgumentException("Du kan inte ändra din egen admin-status.");
+        }
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("Deltagaren finns inte."));
+        user.setAdmin(makeAdmin);
+        userRepository.save(user);
+    }
+
+    private void deleteProfilePicture(String filename) {
+        if (filename == null || filename.isBlank()) return;
+        try {
+            Files.deleteIfExists(Paths.get(uploadDir).toAbsolutePath().resolve(filename));
+        } catch (IOException e) {
+            log.warn("Could not delete profile picture '{}'", filename, e);
+        }
     }
 
     private String saveProfilePicture(MultipartFile file) throws IOException {

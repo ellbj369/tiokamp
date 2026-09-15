@@ -15,4 +15,6 @@ public class AdminRowDto {
     private List<String> points;   // 10 pre-formatted placement points, null until calculated
     private int filledCount;       // how many of the 10 events have a value
     private String totalPoints;    // null until calculated
+    private boolean admin;         // currently an admin (config or dynamic)
+    private boolean adminLocked;   // admin via config — can't be toggled in the UI
 }

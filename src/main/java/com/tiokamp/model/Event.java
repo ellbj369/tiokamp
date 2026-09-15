@@ -54,15 +54,19 @@ public enum Event {
           + "du tror att exakt 60 sekunder har gått. Registrera hur många sekunder fel du var "
           + "(positivt tal, avrundat till hel sekund) — minst fel vinner."),
 
-    // Description left empty on purpose — no ?-popup appears until rules text is added.
-    KROCKET(8, "Krocket", "p", "🏑", "Ange poäng", Direction.HIGHEST, ""),
+    KROCKET(8, "Krocket", "p", "🏑", "Ange poäng", Direction.HIGHEST,
+            "Fem bågar står i rad. Från avståndspinnen slår du iväg 4 klot: genom den mittersta "
+          + "bågen ger 3 p, bågen direkt till höger eller vänster om mitten ger 2 p, och de "
+          + "yttersta bågarna 1 p. Räkna ihop poängen och registrera."),
 
-    SNORBOLLAR(9, "Snörbollar", "p", "🧶", "Ange poäng", Direction.HIGHEST, ""),
+    STEGGOLF(9, "Steggolf", "p", "🪜", "Ange poäng", Direction.HIGHEST,
+            "Kasta 6 par bollar mot stegen. Bollar som blir hängande på översta pinnen ger "
+          + "3 p, mellersta 2 p och nedersta 1 p. Räkna ihop poängen och registrera."),
 
-    // You enter the absolute difference from 30 cm; smallest difference wins (LOWEST).
-    KLIPPA_SNORE(10, "Klippa snöre", "cm", "✂️", "Ange cm från 30", Direction.LOWEST,
-            "Du ska klippa ett snöre exakt 30 centimeter långt. Poängen mäts i differensen, "
-          + "så centimeter från 30 centimeter. Minst differens vinner.");
+    // You enter the error in millimetres from 30 cm; smallest error wins (LOWEST).
+    KLIPPA_SNORE(10, "Klippa snöre", "mm", "✂️", "Ange fel i mm", Direction.LOWEST,
+            "Klipp med sax ett snöre som är exakt 30 cm långt. En kontrollant mäter snöret "
+          + "och noterar felet i millimeter — minst fel vinner.");
 
     public enum Direction { HIGHEST, LOWEST, CLOSEST }
 
@@ -79,6 +83,13 @@ public enum Event {
             throw new IllegalArgumentException("Ogiltigt grennummer: " + number);
         }
         return values()[number - 1];
+    }
+
+    public static Event byDisplayName(String displayName) {
+        for (Event e : values()) {
+            if (e.displayName.equals(displayName)) return e;
+        }
+        return null;
     }
 
     public static int count() {

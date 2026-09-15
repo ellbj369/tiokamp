@@ -25,4 +25,6 @@ ENV SPRING_DATASOURCE_URL="jdbc:h2:file:/data/tiokampdb;DB_CLOSE_DELAY=-1" \
 VOLUME /data
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75.0", "-jar", "/app/app.jar"]
+# SerialGC has the lowest memory/CPU overhead for a small heap on a 1–2 core NAS
+# (G1's extra GC threads and bookkeeping don't pay off at this size).
+ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75.0", "-XX:+UseSerialGC", "-jar", "/app/app.jar"]

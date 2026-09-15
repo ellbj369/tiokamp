@@ -61,32 +61,72 @@
             som sist. <strong>Lägst totalpoäng vinner.</strong> Beräkningen låser poänginmatningen för alla.
         </p>
 
-        <div class="alert alert-error" th:if="${needsFacit}">
-            <span>Makaronifacit är inte satt — slutresultatet kan inte beräknas utan det.
-            Sätt <code>APP_MAKARONI_FACIT</code> i docker-compose.yml (eller
-            <code>app.makaroni-facit</code> i application.properties) och starta om.</span>
+        <div class="facit-box">
+            <form th:action="@{/admin/makaroni-facit}" method="post" class="facit-form">
+                <label for="facit">Makaronifacit (antal i burken)</label>
+                <div class="facit-row">
+                    <input type="text" inputmode="numeric" id="facit" name="facit"
+                           th:value="${makaroniFacit != null ? #numbers.formatDecimal(makaroniFacit, 1, 0) : ''}"
+                           placeholder="t.ex. 537">
+                    <button type="submit" class="btn-secondary">Spara facit</button>
+                </div>
+            </form>
+            <p class="facit-hint" th:if="${needsFacit}">
+                ⚠️ Facit är inte satt än — slutresultatet kan inte beräknas förrän
+                makaronigissningen har ett facit.
+            </p>
+            <p class="facit-hint facit-hint--ok" th:unless="${needsFacit}">
+                ✓ Facit är satt. Ändra ovan om burken räknats om.
+            </p>
         </div>
-        <p class="admin-note" th:if="${makaroniFacit != null}">
-            Makaronifacit: <strong th:text="${#numbers.formatDecimal(makaroniFacit, 1, 0)}"></strong> st.
-        </p>
 
         <div class="admin-actions">
             <form th:action="@{/admin/calculate}" method="post"
-                  onsubmit="return confirm(this.querySelector('button').dataset.confirm)">
+                  th:attr="data-confirm=${resultsCalculated}
+                      ? 'Räkna om slutresultatet utifrån nuvarande råresultat?'
+                      : 'Beräkna slutresultatet? Poänginmatningen låses för alla deltagare.'">
                 <button type="submit" class="btn-primary"
-                        th:text="${resultsCalculated} ? 'Räkna om slutresultatet' : 'Beräkna slutresultatet'"
-                        th:attr="data-confirm=${resultsCalculated}
-                            ? 'Räkna om slutresultatet utifrån nuvarande råresultat?'
-                            : 'Beräkna slutresultatet? Poänginmatningen låses för alla deltagare.'">
+                        th:text="${resultsCalculated} ? 'Räkna om slutresultatet' : 'Beräkna slutresultatet'">
                     Beräkna slutresultatet
                 </button>
             </form>
             <form th:action="@{/admin/clear-results}" method="post" th:if="${resultsCalculated}"
-                  onsubmit="return confirm('Ta bort slutresultatet och öppna poänginmatningen igen?')">
+                  data-confirm="Ta bort slutresultatet och öppna poänginmatningen igen?">
                 <button type="submit" class="btn-secondary">Öppna spelet igen</button>
             </form>
         </div>
     </section>
+
+    <h3 class="section-title">Deltagare (<span th:text="${rows.size()}">0</span>)</h3>
+    <p class="admin-hint" th:if="${resultsCalculated}">
+        Obs: tar du bort en deltagare efter att slutresultatet räknats ut bör du räkna om det.
+    </p>
+    <div class="user-list">
+        <div class="user-row" th:each="row : ${rows}">
+            <img th:if="${row.profilePicture != null}"
+                 th:src="@{/uploads/__${row.profilePicture}__}" class="user-avatar" alt="">
+            <span class="user-avatar user-avatar-fallback" th:if="${row.profilePicture == null}"
+                  th:text="${row.username.substring(0,1).toUpperCase()}"></span>
+            <span class="user-name" th:text="${row.username}"></span>
+            <span class="user-badge" th:if="${row.admin}"
+                  th:text="${row.adminLocked} ? 'admin (fast)' : 'admin'"></span>
+            <span class="user-meta" th:text="${row.filledCount} + '/' + ${events.length} + ' grenar'"></span>
+            <div class="user-actions">
+                <form th:action="@{/admin/users/admin}" method="post" th:unless="${row.adminLocked}">
+                    <input type="hidden" name="username" th:value="${row.username}">
+                    <input type="hidden" name="makeAdmin" th:value="${!row.admin}">
+                    <button type="submit" class="btn-role"
+                            th:text="${row.admin} ? 'Ta bort admin' : 'Gör till admin'">Gör till admin</button>
+                </form>
+                <form th:action="@{/admin/users/delete}" method="post" class="user-delete"
+                      data-confirm="Ta bort den här deltagaren? Detta går inte att ångra.">
+                    <input type="hidden" name="username" th:value="${row.username}">
+                    <button type="submit" class="btn-delete">Ta bort</button>
+                </form>
+            </div>
+        </div>
+        <div th:if="${rows.isEmpty()}" class="user-empty">Inga deltagare har registrerat sig än.</div>
+    </div>
 
     <h3 class="section-title" th:text="${resultsCalculated} ? 'Slutställning' : 'Inlämnade resultat'">Inlämnade resultat</h3>
 
@@ -134,6 +174,46 @@
     <span class="footer-wordmark">Erik &amp; Erika</span>
     <span class="footer-detail">Halltorps Hage, Öland · 19 september</span>
 </footer>
+
+<!-- In-page confirmation (native confirm() is unreliable / blocked in some browsers) -->
+<dialog id="confirmDialog" class="confirm-dialog">
+    <p id="confirmText" class="confirm-text"></p>
+    <div class="confirm-actions">
+        <button type="button" id="confirmCancel" class="btn-secondary">Avbryt</button>
+        <button type="button" id="confirmOk" class="btn-primary">Ja, kör</button>
+    </div>
+</dialog>
+<script>
+(function () {
+    const dialog = document.getElementById('confirmDialog');
+    const text = document.getElementById('confirmText');
+    let pendingForm = null;
+    document.querySelectorAll('form[data-confirm]').forEach(function (form) {
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            pendingForm = form;
+            text.textContent = form.dataset.confirm;
+            if (dialog.showModal) {
+                dialog.showModal();
+            } else {
+                // very old browsers: fall back to native confirm
+                if (window.confirm(form.dataset.confirm)) form.submit();
+                pendingForm = null;
+            }
+        });
+    });
+    document.getElementById('confirmOk').addEventListener('click', function () {
+        dialog.close();
+        if (pendingForm) { const f = pendingForm; pendingForm = null; f.submit(); }
+    });
+    document.getElementById('confirmCancel').addEventListener('click', function () {
+        dialog.close(); pendingForm = null;
+    });
+    dialog.addEventListener('click', function (e) {
+        if (e.target === dialog) { dialog.close(); pendingForm = null; }
+    });
+})();
+</script>
 
 </body>
 </html>

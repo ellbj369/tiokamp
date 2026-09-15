@@ -23,6 +23,16 @@ public class User {
     // Filename of the stored profile picture (e.g. "abc123.jpg")
     private String profilePicture;
 
+    // Dynamically granted admin (via the admin page). Nullable so the column can
+    // be added to an existing database without a default; null means "not admin".
+    @Column(name = "is_admin")
+    private Boolean admin;
+
+    /** True only when explicitly granted; treats a legacy null as not-admin. */
+    public boolean isAdmin() {
+        return Boolean.TRUE.equals(admin);
+    }
+
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Score score;
 

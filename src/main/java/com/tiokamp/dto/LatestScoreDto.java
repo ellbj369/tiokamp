@@ -12,4 +12,5 @@ public class LatestScoreDto {
     private String eventValue; // pre-formatted with Swedish decimal comma
     private Double totalScore;
     private String updatedAt; // formatted time string
+    private String message;   // random placement-based line for this score
 }
