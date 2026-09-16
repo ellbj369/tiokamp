@@ -13,4 +13,5 @@ public class LatestScoreDto {
     private Double totalScore;
     private String updatedAt; // formatted time string
     private String message;   // random placement-based line for this score
+    private boolean hidden;   // true for guessing events whose value must stay secret
 }

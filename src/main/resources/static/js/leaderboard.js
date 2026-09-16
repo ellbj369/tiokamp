@@ -8,8 +8,9 @@ async function refreshLatest() {
         if (!el) return;
 
         el.querySelector('.latest-name').textContent = d.username;
-        el.querySelector('.latest-detail').innerHTML =
-            `gjorde precis <strong>${d.eventValue}</strong> i <span>${d.eventName}</span>`;
+        el.querySelector('.latest-detail').innerHTML = d.hidden
+            ? `la en hemlig gissning i <span>${d.eventName}</span>`
+            : `gjorde precis <strong>${d.eventValue}</strong> i <span>${d.eventName}</span>`;
         const msg = el.querySelector('.latest-message');
         if (msg) msg.textContent = d.message || '';
         el.querySelector('.latest-time').textContent = d.updatedAt;

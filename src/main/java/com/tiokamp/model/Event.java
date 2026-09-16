@@ -92,6 +92,15 @@ public enum Event {
         return null;
     }
 
+    /**
+     * A guessing event whose entered values must NOT be shown publicly on the
+     * leaderboard (it would spoil the game). Still counts in the final scoring
+     * and is visible to admins.
+     */
+    public boolean isHiddenOnLeaderboard() {
+        return this == MAKARONIGISSNING;
+    }
+
     public static int count() {
         return values().length;
     }

@@ -73,17 +73,22 @@ public class ScoreService {
 
         Score s = recent.get(0);
         Event event = Event.byDisplayName(s.getLastUpdatedEvent());
-        Integer placement = latestPlacement(event, s.getLastUpdatedValue());
+        boolean hidden = event != null && event.isHiddenOnLeaderboard();
         long seed = (s.getUser().getUsername() + "|" + s.getLastUpdatedAt()).hashCode();
+        // For a secret guessing event, don't leak the value or a placement hint.
+        Integer placement = hidden ? null : latestPlacement(event, s.getLastUpdatedValue());
+        String message = hidden ? "Gissningen hålls hemlig tills spelet är slut 🤫"
+                                : scoreMessages.forPlacement(placement, seed);
 
         return new LatestScoreDto(
                 s.getUser().getUsername(),
                 s.getUser().getProfilePicture(),
                 s.getLastUpdatedEvent(),
-                fmt(s.getLastUpdatedValue()),
+                hidden ? null : fmt(s.getLastUpdatedValue()),
                 s.getTotalScore(),
                 s.getLastUpdatedAt() != null ? s.getLastUpdatedAt().format(FORMATTER) : "",
-                scoreMessages.forPlacement(placement, seed)
+                message,
+                hidden
         );
     }
 
@@ -113,6 +118,8 @@ public class ScoreService {
         Double makaroniFacit = settingsService.getMakaroniFacit();
 
         for (Event event : Event.values()) {
+            // Secret guessing events (e.g. the macaroni jar) aren't shown here.
+            if (event.isHiddenOnLeaderboard()) continue;
             boolean rankable = event.getDirection() != Event.Direction.CLOSEST
                     || makaroniFacit != null;
 

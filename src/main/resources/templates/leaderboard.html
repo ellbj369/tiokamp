@@ -56,8 +56,11 @@
             <div class="latest-info">
                 <div class="latest-name" th:text="${latest.username}"></div>
                 <div class="latest-detail">
-                    gjorde <strong th:text="${latest.eventValue}"></strong>
-                    i <span th:text="${latest.eventName}"></span>
+                    <span th:if="${latest.hidden}">la en hemlig gissning i
+                        <span th:text="${latest.eventName}"></span></span>
+                    <span th:unless="${latest.hidden}">gjorde
+                        <strong th:text="${latest.eventValue}"></strong>
+                        i <span th:text="${latest.eventName}"></span></span>
                 </div>
                 <div class="latest-message" th:text="${latest.message}"></div>
                 <div class="latest-time" th:text="${latest.updatedAt}"></div>
